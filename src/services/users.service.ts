@@ -7,6 +7,7 @@ import { ObjectId } from 'mongodb'
 import { TokenType, UserVerifyStatus } from '~/constants/enum'
 import RefreshToken from '~/models/schemas/RefreshToken.schemas'
 import { config } from 'dotenv'
+import Follower from '~/models/schemas/Follower.schemas'
 
 config()
 
@@ -206,6 +207,28 @@ class UsersService {
       }
     )
     return user
+  }
+
+  async follow({ user_id, followed_user_id }: { user_id: ObjectId; followed_user_id: ObjectId }) {
+    await databaseService.follower.updateOne(
+      { user_id, followed_user_id },
+      {
+        $setOnInsert: {
+          created_at: new Date(),
+          user_id,
+          followed_user_id
+        }
+      },
+      {
+        upsert: true
+      }
+    )
+    return 'Followed successfully'
+  }
+
+  async unfollow({ user_id, followed_user_id }: { user_id: ObjectId; followed_user_id: ObjectId }) {
+    await databaseService.follower.deleteOne({ user_id, followed_user_id })
+    return 'Unfollow successfully'
   }
 }
 

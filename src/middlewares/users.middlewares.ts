@@ -430,3 +430,63 @@ export const updateUserValidator = validate(
     ['body']
   )
 )
+
+export const followUserValidator = validate(
+  checkSchema(
+    {
+      followed_user_id: {
+        trim: true,
+        notEmpty: {
+          errorMessage: 'Followed user id is required'
+        },
+        isString: {
+          errorMessage: 'Followed user id must be a string'
+        },
+        custom: {
+          options: async (value, { req }) => {
+            if (value === (req as Request).decoded_authorization?.user_id) {
+              throw new ErrorWithStatus(httpStatusCode.BAD_REQUEST, 'You cannot follow yourself')
+            }
+            const user = await databaseService.user.findOne({ _id: new ObjectId(value) })
+
+            if (!user) {
+              throw new ErrorWithStatus(httpStatusCode.BAD_REQUEST, 'Invalid followed user id')
+            }
+            return true
+          }
+        }
+      }
+    },
+    ['body']
+  )
+)
+
+export const unfollowUserValidator = validate(
+  checkSchema(
+    {
+      followed_user_id: {
+        trim: true,
+        notEmpty: {
+          errorMessage: 'Followed user id is required'
+        },
+        isString: {
+          errorMessage: 'Followed user id must be a string'
+        },
+        custom: {
+          options: async (value, { req }) => {
+            if (value === (req as Request).decoded_authorization?.user_id) {
+              throw new ErrorWithStatus(httpStatusCode.BAD_REQUEST, 'You cannot unfollow yourself')
+            }
+            const user = await databaseService.user.findOne({ _id: new ObjectId(value) })
+
+            if (!user) {
+              throw new ErrorWithStatus(httpStatusCode.BAD_REQUEST, 'Followed user not found')
+            }
+            return true
+          }
+        }
+      }
+    },
+    ['body']
+  )
+)

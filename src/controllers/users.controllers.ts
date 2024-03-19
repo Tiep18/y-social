@@ -4,6 +4,7 @@ import { ObjectId } from 'mongodb'
 import User from '~/models/schemas/User.schemas'
 import userService from '~/services/users.service'
 import {
+  UserFollowBody,
   UserForgotPasswordBody,
   UserLogin,
   UserLogout,
@@ -69,4 +70,20 @@ export const updateMeController = async (req: Request<ParamsDictionary, any, Use
     payload: req.body
   })
   return res.json({ message: 'Update successful', result: user })
+}
+
+export const followController = async (req: Request<ParamsDictionary, any, UserFollowBody>, res: Response) => {
+  const result = await userService.follow({
+    user_id: new ObjectId(req.decoded_authorization?.user_id),
+    followed_user_id: req.body.followed_user_id
+  })
+  return res.json({ message: result })
+}
+
+export const unfollowController = async (req: Request<ParamsDictionary, any, UserFollowBody>, res: Response) => {
+  const result = await userService.unfollow({
+    user_id: new ObjectId(req.decoded_authorization?.user_id),
+    followed_user_id: req.body.followed_user_id
+  })
+  return res.json({ message: result })
 }

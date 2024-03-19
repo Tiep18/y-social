@@ -1,6 +1,7 @@
 import { Router } from 'express'
 import {
   emailVerifyController,
+  followController,
   forgotPasswordController,
   getMecontroller,
   loginController,
@@ -8,11 +9,13 @@ import {
   registerController,
   resetPasswordController,
   sendEmailVerifyController,
+  unfollowController,
   updateMeController
 } from '~/controllers/users.controllers'
 import { filterResquestBody } from '~/middlewares/common.middlewares'
 import {
   accessTokenValidator,
+  followUserValidator,
   forgotPasswordlValidator,
   loginValidator,
   refreshTokenValidator,
@@ -106,6 +109,24 @@ usersRoute.patch(
   updateUserValidator,
   wrapRequestHandler(updateMeController)
 )
+
+/**
+ * Description: follow someone
+ * Path: /follow
+ * Method: PUSH
+ * Headers: {Authorization: Bearer <access_token>}
+ * Body: {followed_user_id: string}
+ */
+usersRoute.post('/follow', accessTokenValidator, followUserValidator, wrapRequestHandler(followController))
+
+/**
+ * Description: unfollow someone
+ * Path: /unfollow
+ * Method: DELETE
+ * Headers: {Authorization: Bearer <access_token>}
+ * Body: {followed_user_id: string}
+ */
+usersRoute.delete('/unfollow', accessTokenValidator, followUserValidator, wrapRequestHandler(unfollowController))
 
 /**
  * Description: Logout route

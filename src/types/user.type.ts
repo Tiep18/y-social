@@ -1,3 +1,5 @@
+import { ObjectId } from 'mongodb'
+
 export interface UserRegister {
   email: string
   password: string
@@ -38,4 +40,8 @@ export interface UserUpdateMeBody {
   website?: string
   avatar?: string
   cover_photo?: string
+}
+
+export interface UserFollowBody {
+  followed_user_id: ObjectId
 }
