@@ -20,6 +20,14 @@ export const loginController = async (req: Request<ParamsDictionary, any, UserLo
   return res.json({ message: 'Login successful', data: result })
 }
 
+export const loginWithGoogleController = async (req: Request, res: Response) => {
+  const code = req.query.code as string
+  const { accessToken, refreshToken } = await userService.loginWithGoogle(code)
+  return res.redirect(
+    `${process.env.CLIENT_GOOGLE_OAUTH_REDIRECT}?access_token=${accessToken}&refresh_token=${refreshToken}`
+  )
+}
+
 export const registerController = async (req: Request<ParamsDictionary, any, UserRegister>, res: Response) => {
   const result = await userService.register(req.body)
   return res.json({ message: 'Register successful', data: result })

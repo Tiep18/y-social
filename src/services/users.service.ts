@@ -8,6 +8,10 @@ import { TokenType, UserVerifyStatus } from '~/constants/enum'
 import RefreshToken from '~/models/schemas/RefreshToken.schemas'
 import { config } from 'dotenv'
 import Follower from '~/models/schemas/Follower.schemas'
+import axios from 'axios'
+import { ErrorWithStatus } from '~/models/Error'
+import httpStatusCode from '~/constants/httpStatus'
+import { generateRandomPassword } from '~/utils/utils'
 
 config()
 
@@ -48,6 +52,47 @@ class UsersService {
     return await Promise.all([this.signAccessToken(user_id), this.signRefreshToken(user_id)])
   }
 
+  private async getOauthGoogleToken(code: string) {
+    const body = {
+      code,
+      client_id: process.env.GOOGLE_CLIENT_ID,
+      client_secret: process.env.GOOGLE_CLIENT_SECRET,
+      redirect_uri: process.env.GOOGLE_AUTHORIZED_REDIRECT_URI,
+      grant_type: 'authorization_code'
+    }
+    const { data } = await axios.post('https://oauth2.googleapis.com/token', body, {
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded'
+      }
+    })
+    return data as {
+      id_token: string
+      access_token: string
+    }
+  }
+
+  private async getGoogleUser({ id_token, access_token }: { id_token: string; access_token: string }) {
+    const { data } = await axios.get('https://www.googleapis.com/oauth2/v1/userinfo', {
+      params: {
+        access_token,
+        alt: 'json'
+      },
+      headers: {
+        Authorization: `Bearer ${id_token}`
+      }
+    })
+    return data as {
+      id: string
+      email: string
+      verified_email: boolean
+      name: string
+      given_name: string
+      family_name: string
+      picture: string
+      locale: string
+    }
+  }
+
   async register(payload: UserRegister) {
     const user_id = new ObjectId()
     const email_verify_token = await this.signEmailVerifyToken(user_id)
@@ -77,8 +122,42 @@ class UsersService {
     // delete old refreshToken if have and save new refreshToken to database
     await databaseService.refreshToken.deleteOne({ user_id })
     await databaseService.refreshToken.insertOne(new RefreshToken({ user_id, token: refreshToken }))
-
     return { accessToken, refreshToken }
+  }
+
+  async loginWithGoogle(code: string) {
+    const { access_token, id_token } = await this.getOauthGoogleToken(code)
+    const { email, verified_email, name, picture } = await this.getGoogleUser({ access_token, id_token })
+
+    // Check if gmail is not verified
+    if (!verified_email) {
+      throw new ErrorWithStatus(httpStatusCode.BAD_REQUEST, 'Gmail is not verified')
+    }
+
+    const user = await databaseService.user.findOne({ email })
+    if (user) {
+      const { accessToken, refreshToken } = await this.login(user._id)
+      return { accessToken, refreshToken }
+    } else {
+      const result = await databaseService.user.insertOne(
+        new User({
+          email,
+          name,
+          date_of_birth: new Date(),
+          password: hashPassword(generateRandomPassword(10)),
+          avatar: picture,
+          verify: UserVerifyStatus.Verified
+        })
+      )
+      const [accessToken, refreshToken] = await this.signAccessAndRefreshToken(result.insertedId)
+
+      // save new refreshToken to database
+      await databaseService.refreshToken.insertOne(
+        new RefreshToken({ user_id: result.insertedId, token: refreshToken })
+      )
+
+      return { accessToken, refreshToken }
+    }
   }
 
   async logout(refreshToken: string) {
@@ -92,9 +171,7 @@ class UsersService {
 
   async sendEmailVerify(userId: ObjectId) {
     const user = (await databaseService.user.findOne({ _id: userId })) as User
-
     let emailVerifyToken = user?.email_verify_token
-
     if (user.verify === UserVerifyStatus.Verified) {
       return 'Email verified successfully before'
     }
