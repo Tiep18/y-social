@@ -3,11 +3,13 @@ import { ParamsDictionary } from 'express-serve-static-core'
 import { ObjectId } from 'mongodb'
 import User from '~/models/schemas/User.schemas'
 import userService from '~/services/users.service'
+import { DecodedTokenType } from '~/types/token.type'
 import {
   UserFollowBody,
   UserForgotPasswordBody,
   UserLogin,
   UserLogout,
+  UserRefreshToken,
   UserRegister,
   UserResetPasswordBody,
   UserUpdateMeBody,
@@ -94,4 +96,9 @@ export const unfollowController = async (req: Request<ParamsDictionary, any, Use
     followed_user_id: req.body.followed_user_id
   })
   return res.json({ message: result })
+}
+
+export const refreshTokenController = async (req: Request<ParamsDictionary, any, UserRefreshToken>, res: Response) => {
+  const result = await userService.refreshToken(req.decoded_refresh_token as DecodedTokenType)
+  return res.json({ message: 'Refresh token successful', data: result })
 }

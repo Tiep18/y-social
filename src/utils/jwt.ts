@@ -11,7 +11,7 @@ export interface SignTokenPayload {
   tokenType: TokenType
 }
 
-export const signToken = (payload: SignTokenPayload, privateKey: string, expiresIn: string) => {
+export const signToken = (payload: SignTokenPayload, privateKey: string, expiresIn: string | number) => {
   return new Promise<string>((resolve, reject) => {
     jwt.sign(payload, privateKey as string, { algorithm: 'HS256', expiresIn }, function (err, token) {
       if (err) {

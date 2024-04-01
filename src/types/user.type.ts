@@ -18,6 +18,10 @@ export interface UserLogout {
   refresh_token: string
 }
 
+export interface UserRefreshToken {
+  refresh_token: string
+}
+
 export interface UserVerifyEmail {
   token_verify_email: string
 }

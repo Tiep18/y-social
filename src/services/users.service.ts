@@ -7,11 +7,11 @@ import { ObjectId } from 'mongodb'
 import { TokenType, UserVerifyStatus } from '~/constants/enum'
 import RefreshToken from '~/models/schemas/RefreshToken.schemas'
 import { config } from 'dotenv'
-import Follower from '~/models/schemas/Follower.schemas'
 import axios from 'axios'
 import { ErrorWithStatus } from '~/models/Error'
 import httpStatusCode from '~/constants/httpStatus'
 import { generateRandomPassword } from '~/utils/utils'
+import { DecodedTokenType } from '~/types/token.type'
 
 config()
 
@@ -306,6 +306,25 @@ class UsersService {
   async unfollow({ user_id, followed_user_id }: { user_id: ObjectId; followed_user_id: ObjectId }) {
     await databaseService.follower.deleteOne({ user_id, followed_user_id })
     return 'Unfollow successfully'
+  }
+
+  async refreshToken(decodedToken: DecodedTokenType) {
+    const { user_id: userId, exp } = decodedToken
+    const user_id = new ObjectId(userId)
+    const expiresIn = Math.floor((exp as number) - new Date().getTime() / 1000)
+
+    const [refreshToken, accessToken] = await Promise.all([
+      signToken(
+        { user_id, tokenType: TokenType.REFRESH_TOKEN },
+        process.env.JWT_REFRESH_TOKEN_PRIVATE_KEY as string,
+        expiresIn
+      ),
+      this.signAccessToken(user_id),
+      // delete old refreshToken if have and save new refreshToken to database
+      databaseService.refreshToken.deleteOne({ user_id })
+    ])
+    await databaseService.refreshToken.insertOne(new RefreshToken({ user_id, token: refreshToken }))
+    return { accessToken, refreshToken }
   }
 }
 

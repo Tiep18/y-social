@@ -6,6 +6,7 @@ import {
   getMecontroller,
   loginController,
   logoutController,
+  refreshTokenController,
   registerController,
   resetPasswordController,
   sendEmailVerifyController,
@@ -136,5 +137,13 @@ usersRoute.delete('/unfollow', accessTokenValidator, followUserValidator, wrapRe
  * Body: {refresh_token: string}
  */
 usersRoute.post('/logout', accessTokenValidator, refreshTokenValidator, wrapRequestHandler(logoutController))
+
+/**
+ * Description: Refresh access_token route
+ * Path: /refresh-token
+ * Method: POST
+ * Body: {refresh_token: string}
+ */
+usersRoute.post('/refresh-token', refreshTokenValidator, wrapRequestHandler(refreshTokenController))
 
 export default usersRoute
