@@ -1,3 +1,6 @@
 node_modules/
 dist/
 google-oauth.json
+uploads/
+
+.env
