@@ -7,6 +7,10 @@ import mediaRoute from './routes/media.routes'
 import { initUploadFolders } from './utils/file'
 import staticRoute from './routes/static.routes'
 import cors from 'cors'
+import tweetsRoute from './routes/tweet.routes'
+import bookmarkRoute from './routes/bookmark.routes'
+import likeRoute from './routes/like.routes'
+// import './utils/fakeData'
 
 const port = process.env.PORT || 4000
 
@@ -21,6 +25,9 @@ app.use(express.json())
 app.use('/api/users', usersRoute)
 app.use('/api', oauthRoute)
 app.use('/api/medias', mediaRoute)
+app.use('/api/tweets', tweetsRoute)
+app.use('/api/bookmarks', bookmarkRoute)
+app.use('/api/likes', likeRoute)
 app.use('/static', staticRoute)
 app.use('/static', express.static('uploads'))
 

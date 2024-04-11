@@ -1,7 +1,7 @@
 import { Request, Response } from 'express'
 import { ParamsDictionary } from 'express-serve-static-core'
 import { ObjectId } from 'mongodb'
-import User from '~/models/schemas/User.schemas'
+import User from '~/models/schemas/User.schema'
 import userService from '~/services/users.service'
 import { DecodedTokenType } from '~/types/token.type'
 import {

@@ -1,6 +1,7 @@
-import User from './models/schemas/User.schemas'
+import User from './models/schemas/User.schema'
 import { Request } from 'express'
 import { DecodedTokenType } from './types/token.type'
+import Tweet from './models/schemas/Tweet.schema'
 
 declare module 'express' {
   interface Request {
@@ -9,5 +10,6 @@ declare module 'express' {
     decoded_refresh_token?: DecodedTokenType
     decoded_email_verify_token?: DecodedTokenType
     decoded_forgot_password_token?: DecodedTokenType
+    tweet?: Tweet
   }
 }

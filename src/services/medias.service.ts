@@ -24,7 +24,7 @@ class MediaService {
         fs.unlinkSync(file.filepath)
 
         return {
-          mediaType: MediaType.IMAGE,
+          type: MediaType.IMAGE,
           url: `http://localhost:${process.env.PORT}/static/image/${newFileName}.jpg`
         }
       })
@@ -34,7 +34,7 @@ class MediaService {
   async uploadVideos(req: Request) {
     const file = await handleUploadVideo(req)
     return {
-      mediaType: MediaType.VIDEO,
+      type: MediaType.VIDEO,
       url: `http://localhost:${process.env.PORT}/static/video-streaming/${file.newFilename}`
     }
   }

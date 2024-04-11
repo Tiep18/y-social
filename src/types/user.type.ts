@@ -2,10 +2,9 @@ import { ObjectId } from 'mongodb'
 
 export interface UserRegister {
   email: string
-  password: string
   name: string
-  passwords: string
-  confirm_passwords: string
+  password: string
+  confirm_password: string
   date_of_birth: string
 }
 

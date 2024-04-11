@@ -9,3 +9,7 @@ export function generateRandomPassword(length: number) {
 
   return password
 }
+
+export function enumNumberToAray(enumNumber: { [key: string]: number | string }) {
+  return Object.values(enumNumber).filter((item) => typeof item === 'number') as number[]
+}

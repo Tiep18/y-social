@@ -1,8 +1,12 @@
 import { Collection, Db, MongoClient } from 'mongodb'
 import { config } from 'dotenv'
-import User from '~/models/schemas/User.schemas'
-import RefreshToken from '~/models/schemas/RefreshToken.schemas'
-import Follower from '~/models/schemas/Follower.schemas'
+import User from '~/models/schemas/User.schema'
+import RefreshToken from '~/models/schemas/RefreshToken.schema'
+import Follower from '~/models/schemas/Follower.schema'
+import Tweet from '~/models/schemas/Tweet.schema'
+import Hashtag from '~/models/schemas/Hashtag.schema'
+import Bookmark from '~/models/schemas/Bookmark.schema'
+import Like from '~/models/schemas/Like.schema'
 
 config()
 
@@ -36,6 +40,18 @@ class Database {
   }
   get follower(): Collection<Follower> {
     return this.db.collection('follower')
+  }
+  get tweet(): Collection<Tweet> {
+    return this.db.collection('tweets')
+  }
+  get hashtag(): Collection<Hashtag> {
+    return this.db.collection('hashtags')
+  }
+  get bookmark(): Collection<Bookmark> {
+    return this.db.collection('bookmarks')
+  }
+  get like(): Collection<Like> {
+    return this.db.collection('likes')
   }
 }
 
