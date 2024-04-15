@@ -268,3 +268,28 @@ export const tweetTypeValidator = validate(
     ['query']
   )
 )
+
+export const searchTweetValidator = validate(
+  checkSchema(
+    {
+      media_type: {
+        isIn: {
+          options: [[...mediaTypes, undefined]],
+          errorMessage: 'Invalid media type'
+        }
+      },
+      content: {
+        isString: {
+          errorMessage: 'Content must be a string'
+        }
+      },
+      people_followed: {
+        isIn: {
+          options: [[0, 1]],
+          errorMessage: 'Invalid people_followed type'
+        }
+      }
+    },
+    ['query']
+  )
+)

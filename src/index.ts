@@ -10,6 +10,7 @@ import cors from 'cors'
 import tweetsRoute from './routes/tweet.routes'
 import bookmarkRoute from './routes/bookmark.routes'
 import likeRoute from './routes/like.routes'
+import searchRoute from './routes/search.routes'
 // import './utils/fakeData'
 
 const port = process.env.PORT || 4000
@@ -28,6 +29,7 @@ app.use('/api/medias', mediaRoute)
 app.use('/api/tweets', tweetsRoute)
 app.use('/api/bookmarks', bookmarkRoute)
 app.use('/api/likes', likeRoute)
+app.use('/api/search', searchRoute)
 app.use('/static', staticRoute)
 app.use('/static', express.static('uploads'))
 

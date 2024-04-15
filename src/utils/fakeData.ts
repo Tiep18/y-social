@@ -70,7 +70,7 @@ export function createRandomTweet(): CreateTweetReqBody {
     parent_id: null,
     hashtags: [],
     mentions: [],
-    medias: [{ url: faker.image.avatar(), type: MediaType.IMAGE }]
+    medias: [{ url: faker.image.avatar(), type: MediaType.VIDEO }]
   }
 }
 
