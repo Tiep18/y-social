@@ -7,6 +7,7 @@ import Tweet from '~/models/schemas/Tweet.schema'
 import Hashtag from '~/models/schemas/Hashtag.schema'
 import Bookmark from '~/models/schemas/Bookmark.schema'
 import Like from '~/models/schemas/Like.schema'
+import Conversation from '~/models/schemas/Conversation.schema'
 
 config()
 
@@ -52,6 +53,9 @@ class Database {
   }
   get like(): Collection<Like> {
     return this.db.collection('likes')
+  }
+  get conversation(): Collection<Conversation> {
+    return this.db.collection('conversations')
   }
 }
 

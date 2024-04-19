@@ -491,6 +491,34 @@ export const unfollowUserValidator = validate(
   )
 )
 
+export const receiverIdValidator = validate(
+  checkSchema(
+    {
+      receiver_id: {
+        trim: true,
+        notEmpty: {
+          errorMessage: 'Receiver id is required'
+        },
+        isString: {
+          errorMessage: 'Receiver id must be a string'
+        },
+        custom: {
+          options: async (value) => {
+            if (!ObjectId.isValid(value)) throw new ErrorWithStatus(httpStatusCode.BAD_REQUEST, 'Receiver id invalid')
+            const receiver = await databaseService.user.findOne({ _id: new ObjectId(value as string) })
+
+            if (!receiver) {
+              throw new ErrorWithStatus(httpStatusCode.BAD_REQUEST, 'Receiver not found')
+            }
+            return true
+          }
+        }
+      }
+    },
+    ['params']
+  )
+)
+
 export const isUserLoginMiddleware = (middleware: (req: Request, res: Response, next: NextFunction) => void) => {
   return (req: Request, res: Response, next: NextFunction) => {
     if (req.headers.authorization) {
