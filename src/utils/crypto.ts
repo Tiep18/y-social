@@ -1,11 +1,10 @@
 import crypto from 'crypto'
-import { config } from 'dotenv'
-config()
+import envConfig from '~/constants/envConfig'
 
 const hashPassword = (password: string) => {
   return crypto
     .createHash('sha256')
-    .update(password + process.env.HASH_PASSWORD_SECRET_KEY)
+    .update(password + envConfig.hashPasswordSecretKey)
     .digest('hex')
 }
 

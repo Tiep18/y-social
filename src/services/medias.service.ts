@@ -5,6 +5,7 @@ import fs from 'fs'
 import { UPLOAD_IMAGE_DIR } from '~/constants/config'
 import { getName, handleUploadImages, handleUploadVideo } from '~/utils/file'
 import { MediaType } from '~/constants/enum'
+import envConfig from '~/constants/envConfig'
 
 class MediaService {
   async uploadImages(req: Request) {
@@ -25,7 +26,7 @@ class MediaService {
 
         return {
           type: MediaType.IMAGE,
-          url: `http://localhost:${process.env.PORT}/static/image/${newFileName}.jpg`
+          url: `http://localhost:${envConfig.port}/static/image/${newFileName}.jpg`
         }
       })
     )
@@ -35,7 +36,7 @@ class MediaService {
     const file = await handleUploadVideo(req)
     return {
       type: MediaType.VIDEO,
-      url: `http://localhost:${process.env.PORT}/static/video-streaming/${file.newFilename}`
+      url: `http://localhost:${envConfig.port}/static/video-streaming/${file.newFilename}`
     }
   }
 }

@@ -1,5 +1,4 @@
 import { Collection, Db, MongoClient } from 'mongodb'
-import { config } from 'dotenv'
 import User from '~/models/schemas/User.schema'
 import RefreshToken from '~/models/schemas/RefreshToken.schema'
 import Follower from '~/models/schemas/Follower.schema'
@@ -8,11 +7,9 @@ import Hashtag from '~/models/schemas/Hashtag.schema'
 import Bookmark from '~/models/schemas/Bookmark.schema'
 import Like from '~/models/schemas/Like.schema'
 import Conversation from '~/models/schemas/Conversation.schema'
+import envConfig from '~/constants/envConfig'
 
-config()
-
-const { DB_USERNAME, DB_PASSWORD, DB_NAME } = process.env
-const uri = `mongodb+srv://${DB_USERNAME}:${DB_PASSWORD}@cluster0.pzfmz7x.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0`
+const uri = `mongodb+srv://${envConfig.dbUsername}:${envConfig.dbPassword}@cluster0.pzfmz7x.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0`
 
 // Create a MongoClient with a MongoClientOptions object to set the Stable API version
 
@@ -21,7 +18,7 @@ class Database {
   private db: Db
   constructor() {
     this.client = new MongoClient(uri)
-    this.db = this.client.db(DB_NAME)
+    this.db = this.client.db(envConfig.dbName)
   }
   async connect() {
     try {

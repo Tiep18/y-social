@@ -1,6 +1,7 @@
 import { Request, Response } from 'express'
 import { ParamsDictionary } from 'express-serve-static-core'
 import { ObjectId } from 'mongodb'
+import envConfig from '~/constants/envConfig'
 import User from '~/models/schemas/User.schema'
 import userService from '~/services/users.service'
 import { DecodedTokenType } from '~/types/token.type'
@@ -26,7 +27,7 @@ export const loginWithGoogleController = async (req: Request, res: Response) => 
   const code = req.query.code as string
   const { accessToken, refreshToken } = await userService.loginWithGoogle(code)
   return res.redirect(
-    `${process.env.CLIENT_GOOGLE_OAUTH_REDIRECT}?access_token=${accessToken}&refresh_token=${refreshToken}`
+    `${envConfig.clientGoogleOauthRedirect}?access_token=${accessToken}&refresh_token=${refreshToken}`
   )
 }
 

@@ -6,45 +6,43 @@ import { signToken } from '~/utils/jwt'
 import { ObjectId } from 'mongodb'
 import { TokenType, UserVerifyStatus } from '~/constants/enum'
 import RefreshToken from '~/models/schemas/RefreshToken.schema'
-import { config } from 'dotenv'
 import axios from 'axios'
 import { ErrorWithStatus } from '~/models/Error'
 import httpStatusCode from '~/constants/httpStatus'
 import { generateRandomPassword } from '~/utils/utils'
 import { DecodedTokenType } from '~/types/token.type'
-
-config()
+import envConfig from '~/constants/envConfig'
 
 class UsersService {
   async signAccessToken(user_id: ObjectId) {
     return await signToken(
       { user_id, tokenType: TokenType.ACCESS_TOKEN },
-      process.env.JWT_ACCESS_TOKEN_PRIVATE_KEY as string,
-      process.env.JWT_ACCESS_TOKEN_EXPRID_TIME as string
+      envConfig.jwtAccessTokenPrivateKey,
+      envConfig.jwtAccessTokenExpiredTime
     )
   }
 
   async signRefreshToken(user_id: ObjectId) {
     return await signToken(
       { user_id, tokenType: TokenType.REFRESH_TOKEN },
-      process.env.JWT_REFRESH_TOKEN_PRIVATE_KEY as string,
-      process.env.JWT_REFRESH_TOKEN_EXPRID_TIME as string
+      envConfig.jwtRefreshTokenPrivateKey,
+      envConfig.jwtRefreshTokenExpiredTime
     )
   }
 
   async signEmailVerifyToken(user_id: ObjectId) {
     return await signToken(
       { user_id, tokenType: TokenType.EMAIL_VERIFY_TOKEN },
-      process.env.JWT_VERIFY_EMAIL_TOKEN_PRIVATE_KEY as string,
-      process.env.JWT_VERIFY_EMAIL_TOKEN_EXPRID_TIME as string
+      envConfig.jwtVerifyEmailTokenPrivateKey,
+      envConfig.jwtVerifyEmailTokenExpiredTime
     )
   }
 
   async signForgotPasswordToken(user_id: ObjectId) {
     return await signToken(
       { user_id, tokenType: TokenType.FORGOT_PASSWORD_TOKEN },
-      process.env.JWT_FORGOT_PASSWORD_TOKEN_PRIVATE_KEY as string,
-      process.env.JWT_FORGOT_PASSWORD_TOKEN_EXPRID_TIME as string
+      envConfig.jwtForgotPasswordTokenPrivateKey,
+      envConfig.jwtForgotPasswordTokenExpiredTime
     )
   }
 
@@ -55,9 +53,9 @@ class UsersService {
   private async getOauthGoogleToken(code: string) {
     const body = {
       code,
-      client_id: process.env.GOOGLE_CLIENT_ID,
-      client_secret: process.env.GOOGLE_CLIENT_SECRET,
-      redirect_uri: process.env.GOOGLE_AUTHORIZED_REDIRECT_URI,
+      client_id: envConfig.googleClientId,
+      client_secret: envConfig.googleClientSecret,
+      redirect_uri: envConfig.googleAuthorizedRedirectUri,
       grant_type: 'authorization_code'
     }
     const { data } = await axios.post('https://oauth2.googleapis.com/token', body, {
@@ -314,11 +312,7 @@ class UsersService {
     const expiresIn = Math.floor((exp as number) - new Date().getTime() / 1000)
 
     const [refreshToken, accessToken] = await Promise.all([
-      signToken(
-        { user_id, tokenType: TokenType.REFRESH_TOKEN },
-        process.env.JWT_REFRESH_TOKEN_PRIVATE_KEY as string,
-        expiresIn
-      ),
+      signToken({ user_id, tokenType: TokenType.REFRESH_TOKEN }, envConfig.jwtRefreshTokenPrivateKey, expiresIn),
       this.signAccessToken(user_id),
       // delete old refreshToken if have and save new refreshToken to database
       databaseService.refreshToken.deleteOne({ user_id })

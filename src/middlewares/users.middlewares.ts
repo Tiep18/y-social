@@ -9,10 +9,8 @@ import userService from '~/services/users.service'
 import hashPassword from '~/utils/crypto'
 import { verifyToken } from '~/utils/jwt'
 import validate from '~/utils/validation'
-import { config } from 'dotenv'
 import { UserVerifyStatus } from '~/constants/enum'
-
-config()
+import envConfig from '~/constants/envConfig'
 
 const passwordSchema: ParamSchema = {
   isString: true,
@@ -187,10 +185,7 @@ export const accessTokenValidator = validate(
             const accessToken = value.split(' ')[1]
             if (!accessToken) throw new ErrorWithStatus(httpStatusCode.UNAUTHORIZED, 'Access token is required')
             try {
-              const decoded_authorization = await verifyToken(
-                accessToken,
-                process.env.JWT_ACCESS_TOKEN_PRIVATE_KEY as string
-              )
+              const decoded_authorization = await verifyToken(accessToken, envConfig.jwtAccessTokenPrivateKey)
               req.decoded_authorization = decoded_authorization
             } catch (error) {
               throw new ErrorWithStatus(
@@ -216,7 +211,7 @@ export const refreshTokenValidator = validate(
             if (!value) throw new ErrorWithStatus(httpStatusCode.UNAUTHORIZED, 'Refresh token is required')
             try {
               const [decoded_refresh_token, refreshToken] = await Promise.all([
-                verifyToken(value, process.env.JWT_REFRESH_TOKEN_PRIVATE_KEY as string),
+                verifyToken(value, envConfig.jwtRefreshTokenPrivateKey),
                 databaseService.refreshToken.findOne({ token: value })
               ])
               if (!refreshToken)
@@ -244,10 +239,7 @@ export const tokenVerifyEmailValidator = validate(
           options: async (value: string, { req }) => {
             if (!value) throw new ErrorWithStatus(httpStatusCode.UNAUTHORIZED, 'Token verify email is required')
             try {
-              const decoded_email_verify_token = await verifyToken(
-                value,
-                process.env.JWT_VERIFY_EMAIL_TOKEN_PRIVATE_KEY as string
-              )
+              const decoded_email_verify_token = await verifyToken(value, envConfig.jwtVerifyEmailTokenPrivateKey)
               const user = await databaseService.user.findOne({ _id: new ObjectId(decoded_email_verify_token.user_id) })
               if (value !== user?.email_verify_token)
                 throw new ErrorWithStatus(httpStatusCode.UNAUTHORIZED, 'Email verify token in incorrect')
@@ -310,10 +302,7 @@ export const resetPasswordValidator = validate(
           options: async (value: string, { req }) => {
             if (!value) throw new ErrorWithStatus(httpStatusCode.UNAUTHORIZED, 'Forgot password token is required')
             try {
-              const decoded_forgot_password_token = await verifyToken(
-                value,
-                process.env.JWT_FORGOT_PASSWORD_TOKEN_PRIVATE_KEY as string
-              )
+              const decoded_forgot_password_token = await verifyToken(value, envConfig.jwtForgotPasswordTokenPrivateKey)
               const user = await databaseService.user.findOne({
                 _id: new ObjectId(decoded_forgot_password_token.user_id)
               })

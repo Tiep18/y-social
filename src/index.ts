@@ -14,10 +14,11 @@ import likeRoute from './routes/like.routes'
 import searchRoute from './routes/search.routes'
 import conversationRoute from './routes/conversation.routes'
 import initSocket from './utils/socket'
+import envConfig from './constants/envConfig'
 
 // import './utils/fakeData'
 
-const port = process.env.PORT || 4000
+const port = envConfig.port
 
 const app = express()
 const httpServer = createServer(app)
